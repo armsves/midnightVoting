@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Counter DApp
 
-## Getting Started
+[![Generic badge](https://img.shields.io/badge/Compact%20Compiler-0.23.0-1abc9c.svg)](https://shields.io/)  
+[![Generic badge](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://shields.io/)
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. You must have NodeJS version 22.15 or greater installed.
+2. Download the latest version of the Compact compiler from [the compiler release page](https://docs.midnight.network/relnotes/compact) and follow the instructions to install it (in particular the instructions regarding permissions that must be set to compile the contracts).
+3. Create a directory for the compiler executables, and unzip the downloaded file into that directory.
+4. Add the directory to your shell's $PATH.
+
+   For example, if you unzipped the Compact compiler in `$HOME/bin/compactc`:
+
+   ```sh
+   export PATH=$PATH:$HOME/bin/compactc
+   ```
+
+5. Run `npm install` in the root folder to install all the necessary packages.
+6. Compile and build the code in the `contract` folder before running the code in the `counter-cli` folder.  
+   In the `contract` folder, run this command:
+
+   ```sh
+   npm run compact && npm run build
+   ```
+
+   Follow the instructions in the documentation [to install and launch the proof server](https://docs.midnight.network/develop/tutorial/using/proof-server).
+
+7. Switch to the `counter-cli` folder and run this command:
+
+   ```sh
+   npm run start-testnet-remote
+   ```
+
+   If you do not have a wallet yet, you will be given the option to create a new one. After getting your address, you can use the [official faucet](https://faucet.testnet-02.midnight.network/) to request coins to deploy a contract on testnet and interact with it.
+
+## The counter contract
+
+The [contract](contract) subdirectory contains:
+
+- the [smart contract](contract/src/counter.compact)
+- some [unit tests](contract/src/test/counter.test.ts) to test the smart contract
+
+### The source code
+
+The contract contains a declaration of state stored publicly on the blockchain:
+
+```compact
+export ledger round: Counter;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+and a single transition function to change the state:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```compact
+export circuit increment(): [] {
+  round.increment(1);
+}
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To verify that the smart contract operates as expected,
+we've provided some unit tests in `contract/src/test/counter.test.ts`.
 
-## Learn More
+We've also provided tests that use a simple simulator, which illustrates
+how to initialize and call the smart contract code locally without running a node in `contract/src/test/counter-simulator.ts`
 
-To learn more about Next.js, take a look at the following resources:
+### Building the smart contract
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Compile the contract:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sh
+npm run compact
+```
 
-## Deploy on Vercel
+You should see the following output from npm and the Compact compiler:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+> compact
+> compactc --skip-zk src/counter.compact src/managed/counter
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Compactc version: 0.23.0
+```
+
+The compiler will complete very quickly because we've instructed it to skip ZK key generation with the option `--skip-zk`. The compiler's output files will be placed in the directory `contract/src/managed/counter`.
+
+Build the TypeScript source files:
+
+```sh
+npm run build
+```
+
+This creates the `contract/dist` directory.
+
+Start unit tests:
+
+```sh
+npm run test
+```
+
+## CLI
+
+After building the smart contract you can deploy it using the project in the subdirectory `counter-cli`:
+
+```sh
+cd ../counter-cli
+```
+
+Build from source code:
+
+```sh
+npm run build
+```
+
+Run the DApp:
+
+```sh
+npm run testnet-remote
+```
+
+If you want to launch all these steps at once, you can use this command:
+
+```sh
+npm run start-testnet-remote
+```
+
+The preceding entry point assumes you already have a proof server running locally.
+If you want one to be started automatically for you, use instead:
+
+```sh
+npm run testnet-remote-ps
+```
+
+Then follow the instructions from the CLI.
+
+If you did not previously create and fund a Midnight Lace wallet, you will need to do so. Funds for testing can be requested from [the official faucet](https://faucet.testnet-02.midnight.network/).
+
+You can find more information in part 2 of the [Midnight developer tutorial](https://docs.midnight.network/develop/tutorial/building).
