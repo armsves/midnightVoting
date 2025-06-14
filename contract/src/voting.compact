@@ -1,0 +1,44 @@
+include "std";
+
+witness find_auth_path(pk: Bytes<32>): MerkleTreePath<10, Bytes<32>>;
+witness secret_key(): Bytes<32>;
+
+export ledger authorizedCommitments: HistoricMerkleTree<10, Bytes<32>>;
+export ledger authorizedNullifiers: Set<Bytes<32>>;
+export ledger vote_aye: Counter;
+export ledger vote_nay: Counter;
+
+export circuit add_authority(pk: Bytes<32>): Void {
+  authorizedCommitments.insert(pk);
+}
+
+export circuit increment1(): Void {
+  const sk = secret_key();
+  const auth_path = find_auth_path(public_key(sk));
+  assert authorizedCommitments.check_root(merkle_tree_path_root<10, Bytes<32>>(auth_path))
+    "not authorized";
+  const nul = nullifier(sk);
+  assert !authorizedNullifiers.member(nul) "already incremented";
+  authorizedNullifiers.insert(nul);
+  vote_aye.increment(1);
+}
+
+export circuit increment2(): Void {
+  const sk = secret_key();
+  const auth_path = find_auth_path(public_key(sk));
+  assert authorizedCommitments.check_root(merkle_tree_path_root<10, Bytes<32>>(auth_path))
+    "not authorized";
+  const nul = nullifier(sk);
+  assert !authorizedNullifiers.member(nul) "already incremented";
+  authorizedNullifiers.insert(nul);
+  vote_nay.increment(1);
+}
+
+export circuit public_key(sk: Bytes<32>): Bytes<32> {
+  return persistent_hash<Vector<2, Bytes<32>>>([pad(32, "commitment-domain"), sk]);
+}
+
+export circuit nullifier(sk: Bytes<32>): Bytes<32> {
+  return persistent_hash<Vector<2, Bytes<32>>>([pad(32, "nullifier-domain"), sk]);
+}
+

@@ -1,5 +1,6 @@
 "use client";
 import { useCallback } from "react";
+import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { Contract } from "@midnight-ntwrk/dapp-connector-api";
 
 export default function VoteButtons({ ayePercent, nayPercent }: { ayePercent: number, nayPercent: number }) {

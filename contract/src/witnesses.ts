@@ -18,12 +18,4 @@ export type CounterPrivateState = {
   privateCounter: number;
 };
 
-export type AyePrivateState = {
-  ayeCounter: number;
-};
-
-export type NayPrivateState = {
-  nayCounter: number;
-};
-
 export const witnesses = {};
