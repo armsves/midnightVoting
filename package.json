@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.8.1",
     "@midnight-ntwrk/dapp-connector-api": "^3.0.0",
+    "@midnight-ntwrk/ledger": "^4.0.0",
     "@midnight-ntwrk/midnight-js-contracts": "^2.0.2",
+    "@midnight-ntwrk/midnight-js-types": "^2.0.2",
+    "@midnight-ntwrk/wallet-sdk-address-format": "^2.0.0",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

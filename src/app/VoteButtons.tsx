@@ -1,6 +1,6 @@
 "use client";
 import { useCallback } from "react";
-import { joinContract } from "@midnight-ntwrk/midnight-js-contracts";
+import { Contract } from "@midnight-ntwrk/dapp-connector-api";
 
 export default function VoteButtons({ ayePercent, nayPercent }: { ayePercent: number, nayPercent: number }) {
   // Pie chart calculations
@@ -16,8 +16,8 @@ export default function VoteButtons({ ayePercent, nayPercent }: { ayePercent: nu
     try {
       // @ts-expect-error: window.midnight is injected by wallet extension
       const api = await window.midnight?.[walletName]?.enable();
-      const counterContract = await joinContract(api, counterContractAddress);
-      const result = await counterContract.increment();
+      const contract = new Contract(counterContractAddress, api);
+      const result = await contract.increment();
       console.log(result);
     } catch (error) {
       console.log('an error occurred', error);
