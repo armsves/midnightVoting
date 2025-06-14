@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Image from "next/image";
+import { useCallback } from "react";
+import Navbar from "./Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,14 +22,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  // Handler for the navbar button
+  const handleConnectWallet = useCallback(async () => {
+    const walletName = "mnLace";
+    try {
+      // @ts-expect-error
+      const api = await window.midnight?.[walletName]?.enable();
+      console.log("Wallet API available:", api);
+    } catch (error) {
+      console.log("an error occurred", error);
+    }
+  }, []);
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
+        <Navbar />
         {children}
       </body>
     </html>
